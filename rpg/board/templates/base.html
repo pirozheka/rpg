@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RPG ADVBoard</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{% url 'account_login' %}">Login</a></li>
+            <li><a href="{% url 'account_signup' %}">Sign Up</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'account_logout' %}">Logout</a></li>
+                <li><a href="{% url 'create_advertisement' %}">Create Advertisement</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
