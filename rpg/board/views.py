@@ -1,6 +1,4 @@
-from django.shortcuts import render
-
-# Create your views here.
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Advertisement, Response
 from .forms import AdvertisementForm, ResponseForm
@@ -8,10 +6,28 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
 
-
+#Главная
 def index(request):
-    return render(request, 'board/index.html')
+    advertisements_list = Advertisement.objects.all()
+    paginator = Paginator(advertisements_list, 15)  # Пагинация - 15 объявлений
 
+    page = request.GET.get('page')
+    try:
+        advertisements = paginator.page(page)
+    except PageNotAnInteger:
+        advertisements = paginator.page(1)
+    except EmptyPage:
+        advertisements = paginator.page(paginator.num_pages)
+
+    response_forms = {ad.id: ResponseForm() for ad in advertisements}
+
+    context = {
+        'advertisements': advertisements,
+        'response_forms': response_forms,
+    }
+    return render(request, 'board/index.html', context)
+
+#Создать объявление
 @login_required
 def create_advertisement(request):
     if request.method == 'POST':
@@ -29,6 +45,7 @@ def advertisement_detail(request, pk):
     advertisement = get_object_or_404(Advertisement, pk=pk)
     return render(request, 'board/advertisement_detail.html', {'advertisement': advertisement})
 
+#Создание комментария
 @login_required
 def create_response(request, pk):
     advertisement = get_object_or_404(Advertisement, pk=pk)
@@ -40,8 +57,8 @@ def create_response(request, pk):
             response.advertisement = advertisement
             response.save()
             send_mail(
-                'New Response Received',
-                f'You have a new response to your advertisement "{advertisement.title}".',
+                'Новый ответ: RPG',
+                f'Получен новый ответ на ваше объявление "{advertisement.title}".',
                 settings.EMAIL_HOST_USER,
                 [advertisement.user.email],
                 fail_silently=False,
@@ -49,4 +66,39 @@ def create_response(request, pk):
             return redirect('advertisement_detail', pk=advertisement.pk)
     else:
         form = ResponseForm()
-    return render(request, 'board/create_response.html', {'form': form})
+    return render(request, 'board/create_response.html', {'form': form, 'advertisement': advertisement})
+
+from django.contrib.auth.models import User
+
+#Пользовательская страница
+def user_dashboard(request):
+    # Получение данных
+    user_advertisements = Advertisement.objects.filter(user=request.user)
+    advertisement_paginator = Paginator(user_advertisements, 5)  # 5 на страницу
+
+    page = request.GET.get('page')
+    try:
+        advertisements = advertisement_paginator.page(page)
+    except PageNotAnInteger:
+        advertisements = advertisement_paginator.page(1)
+    except EmptyPage:
+        advertisements = advertisement_paginator.page(advertisement_paginator.num_pages)
+
+    # Получение комментов
+    user_responses = Response.objects.filter(user=request.user)
+    response_paginator = Paginator(user_responses, 5) 
+
+    response_page = request.GET.get('response_page')
+    try:
+        responses = response_paginator.page(response_page)
+    except PageNotAnInteger:
+        responses = response_paginator.page(1)
+    except EmptyPage:
+        responses = response_paginator.page(response_paginator.num_pages)
+
+    context = {
+        'advertisements': advertisements,
+        'responses': responses,
+    }
+
+    return render(request, 'board/user_dashboard.html', context)

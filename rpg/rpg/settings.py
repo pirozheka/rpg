@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'tinymce',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -132,7 +134,15 @@ LOGIN_REDIRECT_URL = '/'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -154,3 +164,35 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
+
+TINYMCE_DEFAULT_CONFIG = {
+    'height': 360,
+    'width': 800,
+    'cleanup_on_startup': True,
+    'custom_undo_redo_levels': 20,
+    'selector': 'textarea',
+    'theme': 'silver',
+    'plugins': '''
+        textcolor save link image media preview codesample contextmenu
+        table code lists fullscreen  insertdatetime  nonbreaking
+        contextmenu directionality searchreplace wordcount visualblocks
+        visualchars code fullscreen autolink lists  charmap print  hr
+        anchor pagebreak
+    ''',
+    'toolbar1': '''
+        fullscreen preview bold italic underline | fontselect,
+        fontsizeselect  | forecolor backcolor | alignleft alignright |
+        aligncenter alignjustify | indent outdent | bullist numlist table |
+        | link image media | codesample |
+    ''',
+    'toolbar2': '''
+        visualblocks visualchars |
+        charmap hr pagebreak nonbreaking anchor |  code |
+    ''',
+    'contextmenu': 'formats | link image',
+    'menubar': True,
+    'statusbar': True,
+}
+
+TINYMCE_SPELLCHECKER = True
+TINYMCE_COMPRESSOR = True

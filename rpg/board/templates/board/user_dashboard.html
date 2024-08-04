@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="cols">
+        <div class="col">
+            <div class="col-title">Ваши объявления</div>
+            {% if advertisements %}
+            <ul class="items">
+                {% for ad in advertisements %}
+                <li class="feed-item">
+                    <div><strong>{{ ad.title }}</strong></div>
+                    <p><strong>Категория:</strong> {{ ad.category.name }}</p>
+                    <p>Создано: {{ ad.created_at }}</p>
+                    <a href="{% url 'advertisement_detail' ad.pk %}" class="leave-comment">Перейти к объявлению</a>
+                    <div class="comment">Отклики на это объявление:</div>
+                    <ul class="comment-section">
+                        {% for response in ad.response_set.all %}
+                        <li><span class="response">{{ response.user.username }}</span>: {{ advertisement.content|safe }}</li>
+                        {% empty %}
+                        <li>К этому объявлению еще нет откликов</li>    
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="pagination">
+                <span class="step-links">
+                    {% if advertisements.has_previous %}
+                        <a href="?page=1">&laquo; 1</a>
+                        <a href="?page={{ advertisements.previous_page_number }}">←</a>
+                    {% endif %}
+        
+                    <span class="current">
+                        Стр. {{ advertisements.number }} из {{ advertisements.paginator.num_pages }}.
+                    </span>
+        
+                    {% if advertisements.has_next %}
+                        <a href="?page={{ advertisements.next_page_number }}">→</a>
+                        <a href="?page={{ advertisements.paginator.num_pages }}">{{ advertisements.paginator.num_pages }} &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+            {% else %}
+            <p>У вас еще нет объявлений.</p>
+            {% endif %}
+        </div>
+        <div class="col">
+            <div class="col-title">Ваши отклики на объявления</div>
+            {% if responses %}
+            <ul class="items">
+                {% for response in responses %}
+                <li class="feed-item">
+                    <p>На объявление: <strong><a class="to-link" href="{% url 'advertisement_detail' response.advertisement.pk %}">
+                        {{response.advertisement.title }}</a></strong></p>
+                    <p>Содержание отклика: {{ response.content }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="pagination">
+                <span class="step-links">
+                    {% if responses.has_previous %}
+                        <a href="?response_page=1">&laquo; 1</a>
+                        <a href="?response_page={{ responses.previous_page_number }}">← </a>
+                    {% endif %}
+        
+                    <span class="current">
+                        Стр. {{ responses.number }} из {{ responses.paginator.num_pages }}
+                    </span>
+        
+                    {% if responses.has_next %}
+                        <a href="?response_page={{ responses.next_page_number }}"> →</a>
+                        <a href="?response_page={{ responses.paginator.num_pages }}">{{ responses.paginator.num_pages }} &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+            {% else %}
+            <p>Вы еще не оставили ни одного отклика.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

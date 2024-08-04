@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <h1>Создать новое объявление</h1>
+    <p>Заполните необходимые поля:</p>
+
+    <div>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Создать</button>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script>
+    tinymce.init({
+        selector: 'textarea',
+        height: 500,
+        menubar: false,
+        plugins: [
+            'advlist autolink lists link image charmap print preview anchor',
+            'searchreplace visualblocks code fullscreen',
+            'insertdatetime media table paste code help wordcount'
+        ],
+        toolbar: 'undo redo | formatselect | bold italic backcolor | \
+                  alignleft aligncenter alignright alignjustify | \
+                  bullist numlist outdent indent | removeformat | help',
+        image_advtab: true,
+        content_css: [
+            '{% static "css/styles.css" %}',  // Подключение стилей вашего сайта
+            'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.4/themes/silver/theme.min.css'
+        ],
+    });
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <a href="/" class="breadcrump"> ← Вернуться на главную страницу объявлений</a>
+    <h1>{{ advertisement.title }}</h1>
+    <p><strong>Категория:</strong> {{ advertisement.category.name }}</p>
+    <p><strong>Содержимое:</strong> {{ advertisement.content }}</p>
+    <p><strong>Автор:</strong> {{ advertisement.user.username }}</p>
+    <p><strong>Дата создания:</strong> {{ advertisement.created_at }}</p>
+
+    <div class="comment">Ответы</div>
+    <ul class="comment-section">
+        {% for response in advertisement.response_set.all %}
+        <li><strong>{{ response.user.username }}:</strong> {{ response.content|safe }} ({{ response.created_at }})</li>
+        {% empty %}
+        <li>Нет ответов на это объявление.</li>
+        {% endfor %}
+    </ul>
+
+    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'create_response' advertisement.pk %}">
+        {% csrf_token %}
+        {{ response_form.as_p }}
+        <button type="submit">Добавить комментарий</button>
+    </form>
+    {% else %}
+    <p>Вы должны <a href="{% url 'login' %}">войти</a>, чтобы оставить ответ.</p>
+    {% endif %}
+</div>
+{% endblock %}
