@@ -3,37 +3,37 @@
 <div class="container">
     <h1>Добро пожаловать на RPG-ADV!</h1>
     <p>Крупнейшая площадка объявлений по вселенной RPG</p>
-    
+
     <div class="feed">
         <h2>Доступные объявления:</h2>
         {% for ad in advertisements %}
-            <div class="feed-item">
-                <div class="feed-item_caption">{{ ad.title }}</div>
-                <div class="feed-date">{{ ad.created_at }}</div>
-                <p class="feed-item_descr">{{ ad.content }}</p>
-    
-                {% if user.is_authenticated %}
-                    <div class="comment">Комментарии:</div>
-                    <ul class="comment-section">
-                        {% for comment in ad.response_set.all %}
-                            <li><span class="response">{{ comment.user.username }}</span>: {{ comment.content }}</li>
-                        {% empty %}
-                            <li class="no-comment">К этому объявлению еще нет комментариев</li>
-                        {% endfor %}
-                    </ul>
-                    <a href="{% url 'create_response' ad.id %}" class="leave-comment">Оставить комментарий</a>
-                {% else %}
-                    <p>Войдите, чтобы оставить комментарий.</p>
-                {% endif %}
-            </div>
+        <div class="feed-item">
+            <div class="feed-item_caption">{{ ad.title }}</div>
+            <div class="feed-date">{{ ad.created_at }}</div>
+            <p class="feed-item_descr">{{ ad.content|safe }}</p>
+
+            {% if user.is_authenticated %}
+            <div class="comment">Комментарии:</div>
+            <ul class="comment-section">
+                {% for comment in ad.response_set.all %}
+                <li><span class="response">{{ comment.user.username }}</span>: {{ comment.content }}</li>
+                {% empty %}
+                <li class="no-comment">К этому объявлению еще нет комментариев</li>
+                {% endfor %}
+            </ul>
+            <a href="{% url 'create_response' ad.id %}" class="leave-comment">Оставить комментарий</a>
+            {% else %}
+            <p>Войдите, чтобы оставить комментарий.</p>
+            {% endif %}
+        </div>
         {% endfor %}
     </div>
-    
+
     <div class="pagination">
         <span class="step-links">
             {% if advertisements.has_previous %}
-                <a href="?page=1">&laquo; 1</a>
-                <a href="?page={{ advertisements.previous_page_number }}">←</a>
+            <a href="?page=1">&laquo; 1</a>
+            <a href="?page={{ advertisements.previous_page_number }}">←</a>
             {% endif %}
 
             <span class="current">
@@ -41,8 +41,9 @@
             </span>
 
             {% if advertisements.has_next %}
-                <a href="?page={{ advertisements.next_page_number }}">→</a>
-                <a href="?page={{ advertisements.paginator.num_pages }}">{{ advertisements.paginator.num_pages }} &raquo;</a>
+            <a href="?page={{ advertisements.next_page_number }}">→</a>
+            <a href="?page={{ advertisements.paginator.num_pages }}">{{ advertisements.paginator.num_pages }}
+                &raquo;</a>
             {% endif %}
         </span>
     </div>

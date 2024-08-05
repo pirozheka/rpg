@@ -5,6 +5,7 @@ from .forms import AdvertisementForm, ResponseForm
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
+from django.contrib.auth.models import User
 
 #Главная
 def index(request):
@@ -68,12 +69,34 @@ def create_response(request, pk):
         form = ResponseForm()
     return render(request, 'board/create_response.html', {'form': form, 'advertisement': advertisement})
 
-from django.contrib.auth.models import User
+
+@login_required
+def delete_response(request, pk):
+    response = get_object_or_404(Response, pk=pk)
+    if response.advertisement.user == request.user:
+        response.delete()
+    return redirect('user_dashboard')
+
+@login_required
+def accept_response(request, pk):
+    response = get_object_or_404(Response, pk=pk)
+    if response.advertisement.user == request.user:
+        response.accepted = True
+        response.save()
+        send_mail(
+            'Ваш отклик принят',
+            f'Ваш отклик на объявление "{response.advertisement.title}" был принят.',
+            settings.EMAIL_HOST_USER,
+            [response.user.email],
+            fail_silently=False,
+        )
+    return redirect('user_dashboard')
+
 
 #Пользовательская страница
 def user_dashboard(request):
     # Получение данных
-    user_advertisements = Advertisement.objects.filter(user=request.user)
+    user_advertisements = Advertisement.objects.filter(user=request.user).order_by('-created_at')
     advertisement_paginator = Paginator(user_advertisements, 5)  # 5 на страницу
 
     page = request.GET.get('page')
@@ -85,8 +108,8 @@ def user_dashboard(request):
         advertisements = advertisement_paginator.page(advertisement_paginator.num_pages)
 
     # Получение комментов
-    user_responses = Response.objects.filter(user=request.user)
-    response_paginator = Paginator(user_responses, 5) 
+    user_responses = Response.objects.filter(user=request.user).order_by('-created_at')
+    response_paginator = Paginator(user_responses, 5)
 
     response_page = request.GET.get('response_page')
     try:

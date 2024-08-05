@@ -5,14 +5,14 @@
     <a href="/" class="breadcrump"> ← Вернуться на главную страницу объявлений</a>
     <h1>{{ advertisement.title }}</h1>
     <p><strong>Категория:</strong> {{ advertisement.category.name }}</p>
-    <p><strong>Содержимое:</strong> {{ advertisement.content }}</p>
+    <p><strong>Содержимое:</strong> {{ advertisement.content|safe }}</p>
     <p><strong>Автор:</strong> {{ advertisement.user.username }}</p>
     <p><strong>Дата создания:</strong> {{ advertisement.created_at }}</p>
 
     <div class="comment">Ответы</div>
     <ul class="comment-section">
         {% for response in advertisement.response_set.all %}
-        <li><strong>{{ response.user.username }}:</strong> {{ response.content|safe }} ({{ response.created_at }})</li>
+        <li><strong>{{ response.user.username }}:</strong> {{ response.content }} ({{ response.created_at }})</li>
         {% empty %}
         <li>Нет ответов на это объявление.</li>
         {% endfor %}
